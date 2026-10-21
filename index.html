@@ -1,239 +1,1648 @@
+
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/dbnan/Downloads/index%20(14).html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATRIX SEQUENCE EVALUATOR v4.5</title>
-    <style>
-        :root {
-            --bg-main: #04060d;
-            --bg-card: #090e1a;
-            --bg-input: #020307;
-            --border-default: #141b2d;
-            --text-primary: #f1f5f9;
-            --text-secondary: #475569;
-            --accent-blue: #2563eb;
-        }
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cipher Engine — Floating Numbers</title>
 
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-main); 
-            color: var(--text-primary); 
-            max-width: 640px; 
-            margin: 80px auto; 
-            padding: 0 20px;
-            letter-spacing: -0.01em;
-        }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
 
-        .card { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-default);
-            border-radius: 16px; 
-            padding: 40px; 
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8); 
-            text-align: center; 
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+:root {
+  --paper: #f8f7f2;
+  --ink: #22232a;
+  --muted: #92929a;
+  --red: #ff5c55;
+  --blue: #526cff;
+  --yellow: #ffd653;
+  --line: rgba(34, 35, 42, 0.09);
+}
 
-        .header-accent {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            color: #38bdf8;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
+* {
+  box-sizing: border-box;
+}
 
-        h2 { margin: 0 0 8px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
-        p { color: var(--text-secondary); font-size: 13px; margin: 0 0 35px 0; line-height: 1.6; }
-        
-        .control-panel { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 35px; }
-        
-        input { 
-            font-size: 32px; width: 160px; text-align: center; 
-            background: var(--bg-input); border: 1px solid var(--border-default); color: #fff; 
-            padding: 14px; border-radius: 12px; font-weight: 700; outline: none;
-            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-            transition: all 0.3s ease;
-        }
-        input:focus { border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1); }
-        
-        button { 
-            font-size: 14px; padding: 24px 32px; background: #fff; 
-            border: none; color: #000; border-radius: 12px; cursor: pointer; 
-            font-weight: 600; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.08em;
-        }
-        button:hover { background: #e2e8f0; transform: translateY(-1px); }
-        button:active { transform: translateY(1px); }
-        button:disabled { background: #1e293b; color: #475569; cursor: not-allowed; transform: none; }
+html {
+  scroll-behavior: smooth;
+}
 
-        .meter-track { width: 100%; background: var(--bg-input); border-radius: 100px; height: 6px; margin-bottom: 40px; overflow: hidden; }
-        .meter-fill { height: 100%; width: 0%; background: var(--accent-blue); transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.6s ease; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Manrope', sans-serif;
+  overflow-x: hidden;
+}
 
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
-        .metric-tile { background: var(--bg-input); padding: 24px; border-radius: 12px; border: 1px solid var(--border-default); text-align: left; }
-        .metric-tile h3 { margin: 0; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; }
-        .metric-tile .value { font-size: 26px; font-weight: 800; margin-top: 8px; font-family: ui-monospace, SFMono-Regular, monospace; }
-        
-        .breakdown-box { 
-            text-align: left; background: var(--bg-input); 
-            padding: 24px; border-radius: 12px; font-size: 13px; border: 1px solid var(--border-default);
-        }
-        .breakdown-box strong { color: var(--text-secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 16px; font-weight: 600; }
-        .breakdown-box ul { margin: 0; padding-left: 16px; color: #94a3b8; line-height: 1.9; list-style-type: square; }
-        .breakdown-box li { margin-bottom: 8px; }
-        
-        .rolling { filter: blur(2px); transform: scale(1.02); opacity: 0.8; }
-    </style>
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .22;
+  z-index: -1;
+  background-image: radial-gradient(#aaa9a0 .6px, transparent .6px);
+  background-size: 18px 18px;
+}
+
+button {
+  font: inherit;
+}
+
+/* PAGE AND FLOATING ART */
+
+.page {
+  width: min(1100px, 100%);
+  margin: auto;
+  padding: 28px 34px 70px;
+  position: relative;
+}
+
+.orbit {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  will-change: transform;
+  animation: float 14s ease-in-out infinite;
+}
+
+.orbit-one {
+  width: 230px;
+  height: 230px;
+  top: 13%;
+  left: -90px;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,92,85,.72),
+    rgba(255,92,85,.06) 70%);
+  animation-delay: -2s;
+}
+
+.orbit-two {
+  width: 300px;
+  height: 300px;
+  right: -120px;
+  top: 35%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(82,108,255,.46),
+    rgba(82,108,255,.03) 70%);
+  animation-delay: -5s;
+}
+
+.orbit-three {
+  width: 190px;
+  height: 190px;
+  left: 15%;
+  bottom: -90px;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,214,83,.7),
+    rgba(255,214,83,.04) 70%);
+  animation-delay: -7s;
+}
+
+.floating-shape {
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  will-change: transform;
+  animation: float 12s ease-in-out infinite;
+}
+
+.shape-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--yellow);
+  top: 185px;
+  right: 9%;
+  box-shadow: 0 12px 30px rgba(255,214,83,.25);
+}
+
+.shape-square {
+  width: 24px;
+  height: 24px;
+  background: var(--blue);
+  border-radius: 7px;
+  transform: rotate(25deg);
+  top: 480px;
+  left: 2%;
+  animation-delay: -3s;
+}
+
+.shape-ring {
+  width: 48px;
+  height: 48px;
+  border: 8px solid var(--red);
+  border-radius: 50%;
+  bottom: 180px;
+  right: 5%;
+  opacity: .8;
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  0%, 100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  30% {
+    translate: 9px -15px;
+    rotate: 5deg;
+  }
+  65% {
+    translate: -7px -24px;
+    rotate: -4deg;
+  }
+}
+
+@keyframes drift {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -3px; }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes numberFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -2px; }
+}
+
+/* HEADER */
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-symbol {
+  width: 39px;
+  height: 39px;
+  border-radius: 14px;
+  position: relative;
+  background: white;
+  box-shadow: 0 7px 24px rgba(35,35,50,.07);
+  transform: rotate(-5deg);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.brand-symbol span {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+}
+
+.brand-symbol span:nth-child(1) {
+  width: 22px;
+  height: 22px;
+  background: var(--red);
+  left: -4px;
+  top: -3px;
+}
+
+.brand-symbol span:nth-child(2) {
+  width: 19px;
+  height: 19px;
+  background: var(--blue);
+  right: -2px;
+  bottom: 1px;
+}
+
+.brand-symbol span:nth-child(3) {
+  width: 12px;
+  height: 12px;
+  background: var(--yellow);
+  left: 14px;
+  top: 12px;
+}
+
+.brand-name {
+  font-size: 13px;
+  letter-spacing: .16em;
+  font-weight: 800;
+}
+
+.brand-sub {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .12em;
+  margin-top: 3px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7bcba4;
+  box-shadow: 0 0 12px rgba(123,203,164,.8);
+}
+
+/* HERO */
+
+.hero {
+  padding: 65px 0 32px;
+  text-align: center;
+  animation: appear .8s ease both;
+}
+
+.eyebrow {
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.hero h1 {
+  font-size: clamp(43px, 7vw, 79px);
+  letter-spacing: -.075em;
+  line-height: .99;
+  margin: 20px 0 18px;
+  font-weight: 600;
+}
+
+.hero h1 .soft {
+  color: #a5a4ad;
+  font-weight: 400;
+}
+
+.hero p {
+  color: #81818b;
+  font-size: 13px;
+  line-height: 1.9;
+  max-width: 390px;
+  margin: auto;
+}
+
+/* GENERATOR PANEL */
+
+.engine {
+  max-width: 780px;
+  margin: 20px auto 0;
+  padding: 24px;
+  border-radius: 32px;
+  border: 1px solid rgba(255,255,255,.95);
+  background: rgba(255,255,255,.47);
+  box-shadow:
+    0 30px 80px rgba(46,45,65,.055),
+    0 4px 18px rgba(46,45,65,.025),
+    inset 0 1px 0 white;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: appear .9s .1s ease both;
+}
+
+.engine-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 5px 22px;
+  gap: 10px;
+}
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .13em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.engine-index {
+  font-family: 'DM Mono', monospace;
+  color: #a5a5ad;
+  font-size: 10px;
+}
+
+.display {
+  position: relative;
+  border-radius: 25px;
+  min-height: 225px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.95), transparent 72%),
+    rgba(245,244,239,.85);
+  border: 1px solid rgba(255,255,255,.96);
+  padding: 28px 20px 24px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.display::before,
+.display::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.display::before {
+  width: 170px;
+  height: 170px;
+  top: -105px;
+  left: -45px;
+  background: rgba(255,92,85,.13);
+  filter: blur(3px);
+}
+
+.display::after {
+  width: 180px;
+  height: 180px;
+  right: -90px;
+  bottom: -125px;
+  background: rgba(82,108,255,.12);
+  filter: blur(5px);
+}
+
+.display-caption {
+  text-align: center;
+  color: #a3a2aa;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+
+.digits {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(6px, 2.2vw, 17px);
+  margin: 25px auto 18px;
+}
+
+.drum {
+  width: clamp(54px, 12vw, 96px);
+  height: clamp(76px, 15vw, 118px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 23px;
+  background: rgba(255,255,255,.76);
+  border: 1px solid rgba(255,255,255,.95);
+  box-shadow:
+    0 12px 28px rgba(38,39,55,.06),
+    inset 0 1px 0 white;
+  position: relative;
+  overflow: hidden;
+  animation: drift 7s ease-in-out infinite;
+}
+
+.drum:nth-child(2) { animation-delay: -1s; }
+.drum:nth-child(3) { animation-delay: -2s; }
+.drum:nth-child(4) { animation-delay: -3s; }
+
+.drum::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,.45), transparent 55%);
+  pointer-events: none;
+}
+
+.digit {
+  font-family: 'DM Mono', monospace;
+  font-size: clamp(36px, 7vw, 65px);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -.08em;
+  color: #282933;
+}
+
+.drum:nth-child(1) .digit { color: var(--red); }
+.drum:nth-child(2) .digit { color: #383944; }
+.drum:nth-child(3) .digit { color: var(--blue); }
+.drum:nth-child(4) .digit { color: #d4a800; }
+
+.drum.rolling .digit {
+  animation: numberFloat .28s ease-in-out infinite;
+}
+
+.display-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: #aaa9b0;
+  letter-spacing: .1em;
+}
+
+.tiny-orb {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--yellow);
+  box-shadow: 0 0 10px rgba(255,214,83,.6);
+}
+
+/* BUTTON */
+
+.action-row {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 19px;
+}
+
+.roll-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 13px;
+  min-width: 225px;
+  padding: 17px 26px;
+  color: white;
+  background: var(--ink);
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(34,35,42,.12);
+  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+.roll-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 17px 32px rgba(34,35,42,.16);
+  background: #343541;
+}
+
+.roll-button:active {
+  transform: translateY(-1px) scale(.985);
+}
+
+.roll-button:disabled {
+  opacity: .7;
+  cursor: wait;
+}
+
+.button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  color: var(--ink);
+  background: var(--yellow);
+  font-size: 17px;
+  transition: transform .4s ease;
+}
+
+.roll-button:hover .button-icon {
+  transform: rotate(90deg);
+}
+
+.button-copy {
+  text-align: left;
+}
+
+.button-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+.button-sub {
+  color: rgba(255,255,255,.55);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  margin-top: 3px;
+}
+
+/* RESULTS */
+
+.result {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 3px;
+}
+
+.result-card {
+  background: rgba(255,255,255,.57);
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 21px;
+  padding: 20px;
+  min-width: 0;
+  box-shadow: 0 7px 25px rgba(34,35,42,.025);
+}
+
+.result-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+}
+
+.score-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 13px;
+}
+
+.score {
+  font-family: 'DM Mono', monospace;
+  font-size: clamp(32px, 5vw, 44px);
+  letter-spacing: -.07em;
+  line-height: 1;
+}
+
+.score-max {
+  color: #aaa9b0;
+  font-size: 12px;
+}
+
+.meter {
+  height: 5px;
+  border-radius: 10px;
+  margin-top: 17px;
+  background: #eeede8;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--red), var(--yellow), var(--blue));
+  transition: width 1s cubic-bezier(.2,.8,.2,1);
+}
+
+.result-description {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #898993;
+  margin-top: 11px;
+}
+
+.tier-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: #f4f2ec;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .04em;
+}
+
+.tier-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--blue);
+  border-radius: 50%;
+}
+
+.result-card:nth-child(2) {
+  position: relative;
+  overflow: hidden;
+}
+
+.result-card:nth-child(2)::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  right: -36px;
+  bottom: -42px;
+  border-radius: 50%;
+  background: rgba(255,214,83,.15);
+  pointer-events: none;
+}
+
+.result-number {
+  margin-top: 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 27px;
+  letter-spacing: -.07em;
+}
+
+.result-note {
+  color: #9998a1;
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 8px;
+}
+
+/* HISTORY AND ACHIEVEMENTS */
+
+.lower-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 45px;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+}
+
+.panel-count {
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+}
+
+.panel {
+  min-width: 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 15px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,.85);
+  background: rgba(255,255,255,.42);
+  animation: appear .35s ease both;
+  transition: transform .2s ease, background .2s ease;
+}
+
+.history-item:hover {
+  transform: translateX(3px);
+  background: rgba(255,255,255,.8);
+}
+
+.history-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px;
+  letter-spacing: -.06em;
+  min-width: 58px;
+}
+
+.history-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-tier {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.history-time {
+  font-family: 'DM Mono', monospace;
+  color: #aaa9b0;
+  font-size: 9px;
+  margin-top: 4px;
+}
+
+.history-score {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: #7e7e88;
+}
+
+.empty-state {
+  color: #a1a0a8;
+  font-size: 11px;
+  line-height: 1.8;
+  padding: 24px 15px;
+  text-align: center;
+  border-radius: 15px;
+  border: 1px dashed rgba(34,35,42,.12);
+}
+
+.achievement-summary {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.achievement {
+  position: relative;
+  min-height: 105px;
+  border-radius: 17px;
+  padding: 14px;
+  background: rgba(255,255,255,.43);
+  border: 1px solid rgba(255,255,255,.9);
+  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+  overflow: hidden;
+}
+
+.achievement.unlocked {
+  background: rgba(255,255,255,.85);
+  box-shadow: 0 8px 25px rgba(34,35,42,.035);
+}
+
+.achievement.unlocked:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(34,35,42,.07);
+}
+
+.achievement-icon {
+  width: 29px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f0efe9;
+  font-size: 14px;
+  filter: grayscale(1);
+  opacity: .5;
+}
+
+.achievement.unlocked .achievement-icon {
+  filter: none;
+  opacity: 1;
+}
+
+.achievement:nth-child(3n + 1).unlocked .achievement-icon {
+  background: rgba(255,92,85,.12);
+}
+
+.achievement:nth-child(3n + 2).unlocked .achievement-icon {
+  background: rgba(82,108,255,.12);
+}
+
+.achievement:nth-child(3n).unlocked .achievement-icon {
+  background: rgba(255,214,83,.25);
+}
+
+.achievement-name {
+  font-size: 10px;
+  font-weight: 800;
+  margin-top: 11px;
+}
+
+.achievement-desc {
+  color: #9998a1;
+  font-size: 9px;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+.achievement:not(.unlocked) .achievement-name {
+  color: #a5a4ac;
+}
+
+.achievement-notice {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  margin-top: 12px;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.95);
+  border-radius: 15px;
+  box-shadow: 0 8px 28px rgba(34,35,42,.06);
+  animation: appear .4s ease both;
+}
+
+.achievement-notice.show {
+  display: flex;
+}
+
+.notice-icon {
+  font-size: 23px;
+}
+
+.notice-title {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.notice-description {
+  font-size: 9px;
+  color: #8d8c96;
+  margin-top: 3px;
+}
+
+/* FOOTER */
+
+footer {
+  margin-top: 58px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  color: #aaa9b0;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .06em;
+}
+
+.footer-mark {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.footer-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--red);
+  border-radius: 50%;
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+  .page {
+    padding: 20px 17px 45px;
+  }
+
+  header {
+    padding-bottom: 20px;
+  }
+
+  .brand-name {
+    font-size: 11px;
+  }
+
+  .brand-sub {
+    font-size: 8px;
+  }
+
+  .header-right {
+    font-size: 8px;
+  }
+
+  .hero {
+    padding-top: 54px;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 12vw, 65px);
+  }
+
+  .hero p {
+    font-size: 12px;
+  }
+
+  .engine {
+    padding: 12px;
+    border-radius: 25px;
+    margin-top: 24px;
+  }
+
+  .display {
+    min-height: 195px;
+    padding: 24px 8px 19px;
+    border-radius: 20px;
+  }
+
+  .drum {
+    border-radius: 17px;
+  }
+
+  .result-card {
+    padding: 15px;
+    border-radius: 17px;
+  }
+
+  .result {
+    gap: 8px;
+  }
+
+  .result-description {
+    font-size: 10px;
+  }
+
+  .lower-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    margin-top: 35px;
+  }
+
+  .achievement {
+    min-height: 100px;
+  }
+
+  footer {
+    margin-top: 42px;
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+</style>
 </head>
+
 <body>
+<div class="orbit orbit-one"></div>
+<div class="orbit orbit-two"></div>
+<div class="orbit orbit-three"></div>
 
-    <div id="mainCard" class="card" style="border-color: rgba(148, 163, 184, 0.25); box-shadow: rgba(148, 163, 184, 0.063) 0px 30px 60px;">
-        <div class="header-accent">Vector Architecture v4.5</div>
-        <h2>Sequence Analyzer</h2>
-        <p>Dynamic scoring architecture compiling raw mathematical vector configurations up to a 1,000-point hard threshold limit.</p>
-        
-        <div class="control-panel">
-            <input type="text" id="numInput" maxlength="4" placeholder="----" oninput="runEngine()" class="">
-            <button id="genBtn" onclick="rollRandom()">Generate</button>
-        </div>
+<div class="page">
+  <div class="floating-shape shape-circle"></div>
+  <div class="floating-shape shape-square"></div>
+  <div class="floating-shape shape-ring"></div>
 
-        <div class="meter-track">
-            <div id="progressBar" class="meter-fill" style="width: 30.6%; background-color: rgb(148, 163, 184);"></div>
-        </div>
-
-        <div class="metrics-grid">
-            <div class="metric-tile">
-                <h3>Point Value Index</h3>
-                <div id="scoreBox" style="color: var(--text-primary);">306 / 1000</div>
-            </div>
-            <div class="metric-tile">
-                <h3>Classification Tier</h3>
-                <div id="tierBox" style="font-weight: 800; color: rgb(148, 163, 184);">UNCOMMON</div>
-            </div>
-        </div>
-
-        <div class="breakdown-box">
-            <strong>Engine Parameter Allocation</strong>
-            <ul id="breakdownList"><li>Chaos Variance Distribution (4 unique digits): +269 pts</li><li>Coefficient Multiplier (+37 per registered '7'): +37 pts</li></ul>
-        </div>
+  <header>
+    <div class="brand">
+      <div class="brand-symbol" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div>
+        <div class="brand-name">CIPHER ENGINE</div>
+        <div class="brand-sub">A STUDY IN RANDOMNESS</div>
+      </div>
     </div>
 
-    <script>
-        function runEngine() {
-            let numStr = document.getElementById("numInput").value;
-            if (numStr.length !== 4 || isNaN(numStr)) {
-                document.getElementById("scoreBox").innerText = "----";
-                document.getElementById("tierBox").innerText = "AWAITING INPUT";
-                document.getElementById("tierBox").style.color = "var(--text-secondary)";
-                document.getElementById("breakdownList").innerHTML = "<li>Input a 4-digit numeric index to initialize configuration scan.</li>";
-                document.getElementById("progressBar").style.width = "0%";
-                document.getElementById("mainCard").style.borderColor = "var(--border-default)";
-                document.getElementById("mainCard").style.boxShadow = "0 30px 60px rgba(0, 0, 0, 0.8)";
-                return;
-            }
+    <div class="header-right">
+      <span class="live-dot"></span>
+      <span>ENGINE ONLINE</span>
+    </div>
+  </header>
 
-            let score = 0;
-            let breakdown = [];
-            let uniqueDigits = new Set(numStr).size;
-            
-            let digits = numStr.split('').map(Number);
-            let isAscending = "0123456789".includes(numStr);
-            let isDescending = "9876543210".includes(numStr);
+  <section class="hero">
+    <div class="eyebrow">A LITTLE SPACE FOR CHANCE</div>
+    <h1>Numbers,<br><span class="soft">in orbit.</span></h1>
+    <p>
+      Every number has a different kind of energy.
+      Let the universe pick four digits, then see
+      what the numbers have to say.
+    </p>
+  </section>
 
-            if (uniqueDigits === 1) { score += 423; breakdown.push("Singularity Array Node (All digits match): +423 pts"); }
-            else if (uniqueDigits === 2) { score += 187; breakdown.push("Compressed Grouping Node (2 unique digits): +187 pts"); }
-            else if (uniqueDigits === 3) { score += 94;  breakdown.push("Balanced Value Node (3 unique digits): +94 pts"); }
-            else if (uniqueDigits === 4) { score += 269; breakdown.push("Chaos Variance Distribution (4 unique digits): +269 pts"); }
+  <main>
+    <section class="engine">
+      <div class="engine-top">
+        <div class="section-label">01 / Number generator</div>
+        <div class="engine-index" id="machineIndex">SESSION 000</div>
+      </div>
 
-            if (numStr.substring(0,2) === numStr.substring(2,4)) {
-                score += 217; breakdown.push("Harmonic Twin Duplication: +217 pts");
-            }
-            if (numStr === numStr.split('').reverse().join('') && uniqueDigits > 1) {
-                score += 173; breakdown.push("Symmetrical Mirror Vector (Palindrome): +173 pts");
-            }
-            if (isAscending || isDescending) {
-                score += 311; breakdown.push("Linear Numerical Staircase: +311 pts");
-            }
+      <div class="display">
+        <div class="display-caption">Your number is somewhere out there</div>
 
-            let digitalSum = digits.reduce((a, b) => a + b, 0);
-            if (digitalSum >= 32) {
-                score += 113; breakdown.push("High Core Mass Metric (Sum " + digitalSum + " is >= 32): +113 pts");
-            } else if (digitalSum <= 4) {
-                score += 79;  breakdown.push("Low Core Mass Metric (Sum " + digitalSum + " is <= 4): +79 pts");
-            }
-            
-            let evens = digits.filter(n => n % 2 === 0).length;
-            if (evens === 4) { score += 83; breakdown.push("Uniform Even Polar Alignment: +83 pts"); }
-            if (evens === 0) { score += 83; breakdown.push("Uniform Odd Polar Alignment: +83 pts"); }
+        <div class="digits" id="digits" aria-label="Generated four-digit number">
+          <div class="drum"><span class="digit">0</span></div>
+          <div class="drum"><span class="digit">0</span></div>
+          <div class="drum"><span class="digit">0</span></div>
+          <div class="drum"><span class="digit">0</span></div>
+        </div>
 
-            let sevens = (numStr.match(/7/g) || []).length;
-            if (sevens > 0) {
-                score += sevens * 37; breakdown.push("Coefficient Multiplier (+37 per registered '7'): +" + (sevens * 37) + " pts");
-            }
-            if (/^[01]+$/.test(numStr)) {
-                score += 109; breakdown.push("System Binary Configuration Profile: +109 pts");
-            }
+        <div class="display-foot">
+          <span class="tiny-orb"></span>
+          <span id="status" aria-live="polite">WAITING FOR A LITTLE CHAOS</span>
+        </div>
+      </div>
 
-            score = Math.min(score, 989); 
+      <div class="action-row">
+        <button class="roll-button" id="rollButton">
+          <span class="button-icon">↗</span>
+          <span class="button-copy">
+            <span class="button-title" id="buttonTitle">Find a number</span>
+            <span class="button-sub">LET CHANCE DECIDE</span>
+          </span>
+        </button>
+      </div>
 
-            let tier, color;
-            if (score >= 950) { tier = "MYTHIC"; color = "#c084fc"; }
-            else if (score >= 820) { tier = "LEGENDARY"; color = "#fb923c"; }
-            else if (score >= 680) { tier = "SPECIAL"; color = "#4ade80"; }
-            else if (score >= 520) { tier = "SUPER RARE"; color = "#60a5fa"; }
-            else if (score >= 380) { tier = "RARE"; color = "#f472b6"; }
-            else if (score >= 200) { tier = "UNCOMMON"; color = "#94a3b8"; }
-            else { tier = "COMMON"; color = "#475569"; }
+      <div class="result">
+        <div class="result-card">
+          <div class="result-label">Number energy</div>
+          <div class="score-line">
+            <span class="score" id="score">—</span>
+            <span class="score-max">/ 1000</span>
+          </div>
+          <div class="meter">
+            <div class="meter-fill" id="meterFill"></div>
+          </div>
+          <div class="tier-pill">
+            <span class="tier-dot" id="tierDot"></span>
+            <span id="tier">Awaiting signal</span>
+          </div>
+          <div class="result-description" id="description">
+            Roll your first number to discover its character.
+          </div>
+        </div>
 
-            document.getElementById("scoreBox").innerText = score + " / 1000";
-            document.getElementById("tierBox").innerText = tier;
-            document.getElementById("tierBox").style.color = color;
-            
-            document.getElementById("progressBar").style.width = ((score / 1000) * 100) + "%";
-            document.getElementById("progressBar").style.backgroundColor = color;
-            document.getElementById("mainCard").style.borderColor = color + "40";
-            document.getElementById("mainCard").style.boxShadow = "0 30px 60px " + color + "10";
+        <div class="result-card">
+          <div class="result-label">Personal best</div>
+          <div class="result-number" id="best">----</div>
+          <div class="result-note" id="bestNote">
+            Your highest-rated number will live here.
+          </div>
+          <div class="result-label" style="margin-top:22px;">Numbers discovered</div>
+          <div class="result-number" id="total">000</div>
+          <div class="result-note">Every roll adds a little more to the collection.</div>
+        </div>
+      </div>
+    </section>
 
-            let listHtml = breakdown.map(item => "<li>" + item + "</li>").join('');
-            document.getElementById("breakdownList").innerHTML = listHtml || "<li>Standard matrix parameters verified. No anomalies flagged.</li>";
-        }
+    <div class="lower-grid">
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <div class="panel-title">Recent discoveries</div>
+            <div class="achievement-summary">Little fragments of chance.</div>
+          </div>
+          <div class="panel-count" id="historyCount">00 ROLLS</div>
+        </div>
 
-        function rollRandom() {
-            let inputField = document.getElementById("numInput");
-            let generateButton = document.getElementById("genBtn");
-            
-            inputField.disabled = true;
-            generateButton.disabled = true;
-            inputField.classList.add("rolling");
-            
-            let duration = 850; 
-            let intervalSpeed = 45; 
-            let elapsed = 0;
-            
-            let rollInterval = setInterval(() => {
-                let placeholderRand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-                inputField.value = placeholderRand;
-                runEngine();
-                
-                elapsed += intervalSpeed;
-                if (elapsed >= duration) {
-                    clearInterval(rollInterval);
-                    
-                    let finalRand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-                    inputField.value = finalRand;
-                    
-                    inputField.disabled = false;
-                    generateButton.disabled = false;
-                    inputField.classList.remove("rolling");
-                    
-                    runEngine();
-                }
-            }, intervalSpeed);
-        }
+        <div class="history-list" id="history">
+          <div class="empty-state">
+            Nothing has floated by yet.<br>
+            Your first number will appear here.
+          </div>
+        </div>
+      </section>
 
-        runEngine();
-    </script>
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <div class="panel-title">Tiny milestones</div>
+            <div class="achievement-summary" id="achievementSummary">0 of 10 discovered</div>
+          </div>
+          <div class="panel-count">02 / COLLECTION</div>
+        </div>
 
+        <div class="achievement-grid" id="achievementGrid"></div>
 
-</body></html>
+        <div class="achievement-notice" id="achievementNotice" role="status">
+          <div class="notice-icon" id="noticeTop">✦</div>
+          <div>
+            <div class="notice-title" id="noticeTitle">Achievement unlocked</div>
+            <div class="notice-description" id="noticeDescription"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-mark">
+      <span class="footer-dot"></span>
+      <span>MADE OF CHANCE</span>
+    </div>
+    <div>FOUR DIGITS · INFINITE POSSIBILITIES</div>
+  </footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+const digitElements = [...document.querySelectorAll(".digit")];
+const drumElements = [...document.querySelectorAll(".drum")];
+const rollButton = $("rollButton");
+
+let rolls = 0;
+let bestScore = -1;
+let bestNumber = null;
+let previousNumber = null;
+let recentNumbers = [];
+let allNumbers = [];
+let unlocked = new Set();
+let rolling = false;
+let lastScore = 0;
+let animationFrame = null;
+let rollStartTime = 0;
+let lastDigitUpdate = 0;
+let targetNumber = null;
+
+const ROLL_DURATION = 1050;
+const START_INTERVAL = 55;
+const END_INTERVAL = 170;
+
+const achievements = [
+  {
+    id: "first",
+    name: "First Impression",
+    icon: "✦",
+    description: "Generate your very first number.",
+    secret: false,
+    test: (c) => c.rolls >= 1
+  },
+  {
+    id: "collector",
+    name: "Little Collector",
+    icon: "◉",
+    description: "Discover 10 numbers.",
+    secret: false,
+    test: (c) => c.rolls >= 10
+  },
+  {
+    id: "highart",
+    name: "High Art",
+    icon: "✺",
+    description: "Score 900 or higher.",
+    secret: false,
+    test: (c) => c.score >= 900
+  },
+  {
+    id: "twice",
+    name: "Twin Energy",
+    icon: "Ⅱ",
+    description: "Roll a number with exactly one pair.",
+    secret: false,
+    test: (c) => c.counts.includes(2)
+  },
+  {
+    id: "pattern",
+    name: "Pattern Seeker",
+    icon: "⌘",
+    description: "Find a number that reads the same both ways.",
+    secret: false,
+    test: (c) =>
+      c.number[0] === c.number[3] &&
+      c.number[1] === c.number[2]
+  },
+  {
+    id: "void",
+    name: "The Void",
+    icon: "●",
+    description: "Find the number with absolutely nothing in it.",
+    secret: true,
+    test: (c) => c.number === "0000"
+  },
+  {
+    id: "monolith",
+    name: "Monolith",
+    icon: "▣",
+    description: "All four digits become one.",
+    secret: true,
+    test: (c) => new Set(c.number).size === 1
+  },
+  {
+    id: "order",
+    name: "Perfect Order",
+    icon: "↗",
+    description: "Discover a sequence in perfect order.",
+    secret: true,
+    test: (c) =>
+      c.number === "1234" ||
+      c.number === "4321"
+  },
+  {
+    id: "circuit",
+    name: "Closed Circuit",
+    icon: "⌁",
+    description: "Find an alternating number, like 1212.",
+    secret: true,
+    test: (c) =>
+      c.number[0] === c.number[2] &&
+      c.number[1] === c.number[3] &&
+      c.number[0] !== c.number[1]
+  },
+  {
+    id: "century",
+    name: "Centurion",
+    icon: "✧",
+    description: "Generate 100 numbers.",
+    secret: false,
+    test: (c) => c.rolls >= 100
+  }
+];
+
+/* SCORING SYSTEM — only this function has been changed. */
+
+function analyzeNumber(number) {
+  const digits = [...number].map(Number);
+  const counts = Array(10).fill(0);
+
+  digits.forEach(d => counts[d]++);
+
+  const uniqueCount = new Set(digits).size;
+  const sum = digits.reduce((a, b) => a + b, 0);
+
+  const isPalindrome =
+    number[0] === number[3] &&
+    number[1] === number[2];
+
+  const isAscending =
+    digits.every((d, i) =>
+      i === 0 || d >= digits[i - 1]
+    );
+
+  const isDescending =
+    digits.every((d, i) =>
+      i === 0 || d <= digits[i - 1]
+    );
+
+  const hasPair = counts.some(c => c === 2);
+  const allSame = uniqueCount === 1;
+  const repeatedDigits = 4 - uniqueCount;
+
+  // Much lower starting score and smaller routine bonuses.
+  let score = 200;
+
+  score += uniqueCount * 25;
+  score += repeatedDigits * 20;
+
+  // Common patterns give modest bonuses.
+  if (isPalindrome) score += 90;
+  if (isAscending || isDescending) score += 55;
+  if (hasPair) score += 35;
+
+  // Highly repetitive numbers receive a stronger bonus.
+  if (allSame) score += 180;
+
+  // Secret zero number receives an additional rare-pattern bonus.
+  if (number === "0000") score += 250;
+
+  // Perfect sequences are unusual, but not enough on their own
+  // to guarantee one of the highest tiers.
+  if (number === "1234" || number === "4321") {
+    score += 100;
+  }
+
+  // Alternating patterns, such as 1212, get a moderate bonus.
+  if (
+    number[0] === number[2] &&
+    number[1] === number[3]
+  ) {
+    score += 60;
+  }
+
+  if (sum === 18) score += 10;
+
+  if (digits.every(d => d % 2 === 0)) score += 15;
+  if (digits.every(d => d % 2 === 1)) score += 15;
+
+  // Small tie-breaker; this can never dominate the pattern score.
+  score += (
+    digits[0] * 7 +
+    digits[1] * 11 +
+    digits[2] * 13 +
+    digits[3] * 17
+  ) % 31;
+
+  score = Math.min(1000, score);
+
+  let tier;
+  let description;
+  let color;
+
+  if (score >= 900) {
+    tier = "Celestial";
+    description =
+      "A rare little constellation. This one has real presence.";
+    color = "#526cff";
+  } else if (score >= 780) {
+    tier = "Ethereal";
+    description =
+      "A lovely alignment of digits. Quite a special find.";
+    color = "#8b78dc";
+  } else if (score >= 650) {
+    tier = "Dreamlike";
+    description =
+      "Something quietly unusual is happening here.";
+    color = "#d3a92a";
+  } else if (score >= 520) {
+    tier = "Interesting";
+    description =
+      "A satisfying mix of shapes, repetition, and rhythm.";
+    color = "#ff7c66";
+  } else if (score >= 400) {
+    tier = "Curious";
+    description =
+      "A modest little pattern drifting through the universe.";
+    color = "#7a9f91";
+  } else {
+    tier = "Everyday Magic";
+    description =
+      "Not every star needs to be the brightest one.";
+    color = "#92929a";
+  }
+
+  return {
+    score,
+    tier,
+    description,
+    color,
+    counts,
+    uniqueCount,
+    sum,
+    isPalindrome,
+    isAscending,
+    isDescending,
+    hasPair,
+    allSame
+  };
+}
+
+function formatNumber(number) {
+  return String(number).padStart(3, "0");
+}
+
+function renderAchievements() {
+  const grid = $("achievementGrid");
+  const fragment = document.createDocumentFragment();
+
+  achievements.forEach(achievement => {
+    const isUnlocked = unlocked.has(achievement.id);
+    const isHidden = achievement.secret && !isUnlocked;
+
+    const item = document.createElement("div");
+    item.className =
+      "achievement" + (isUnlocked ? " unlocked" : "");
+
+    const icon = document.createElement("div");
+    icon.className = "achievement-icon";
+    icon.textContent = isHidden ? "?" : achievement.icon;
+
+    const name = document.createElement("div");
+    name.className = "achievement-name";
+    name.textContent = isHidden ? "Unknown" : achievement.name;
+
+    const description = document.createElement("div");
+    description.className = "achievement-desc";
+    description.textContent = isHidden
+      ? "A secret milestone waits somewhere out there."
+      : achievement.description;
+
+    item.append(icon, name, description);
+    fragment.appendChild(item);
+  });
+
+  grid.replaceChildren(fragment);
+
+  $("achievementSummary").textContent =
+    `${unlocked.size} of ${achievements.length} discovered`;
+}
+
+function showAchievement(achievement) {
+  $("noticeTop").textContent = achievement.icon;
+  $("noticeTitle").textContent =
+    `Unlocked: ${achievement.name}`;
+  $("noticeDescription").textContent =
+    achievement.description;
+
+  const notice = $("achievementNotice");
+  notice.classList.remove("show");
+
+  // Restart the entrance animation when an achievement is earned.
+  void notice.offsetWidth;
+  notice.classList.add("show");
+}
+
+function checkAchievements(number, analysis) {
+  const context = {
+    number,
+    score: analysis.score,
+    counts: analysis.counts,
+    rolls
+  };
+
+  const newlyUnlocked = [];
+
+  achievements.forEach(achievement => {
+    if (
+      !unlocked.has(achievement.id) &&
+      achievement.test(context)
+    ) {
+      unlocked.add(achievement.id);
+      newlyUnlocked.push(achievement);
+    }
+  });
+
+  if (newlyUnlocked.length > 0) {
+    renderAchievements();
+    showAchievement(newlyUnlocked[0]);
+  } else {
+    $("achievementSummary").textContent =
+      `${unlocked.size} of ${achievements.length} discovered`;
+  }
+}
+
+function addHistory(number, analysis) {
+  recentNumbers.unshift({
+    number,
+    score: analysis.score,
+    tier: analysis.tier,
+    time: new Date()
+  });
+
+  recentNumbers = recentNumbers.slice(0, 6);
+
+  const history = $("history");
+  const fragment = document.createDocumentFragment();
+
+  recentNumbers.forEach(item => {
+    const el = document.createElement("div");
+    el.className = "history-item";
+
+    const time = item.time.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    const code = document.createElement("div");
+    code.className = "history-code";
+    code.textContent = item.number;
+
+    const meta = document.createElement("div");
+    meta.className = "history-meta";
+
+    const tier = document.createElement("div");
+    tier.className = "history-tier";
+    tier.textContent = item.tier;
+
+    const timestamp = document.createElement("div");
+    timestamp.className = "history-time";
+    timestamp.textContent = time;
+
+    const score = document.createElement("div");
+    score.className = "history-score";
+    score.textContent = item.score;
+
+    meta.append(tier, timestamp);
+    el.append(code, meta, score);
+    fragment.appendChild(el);
+  });
+
+  history.replaceChildren(fragment);
+
+  $("historyCount").textContent =
+    `${String(rolls).padStart(2, "0")} ROLLS`;
+}
+
+function updateResults(number, analysis) {
+  $("score").textContent = analysis.score;
+  $("tier").textContent = analysis.tier;
+  $("tierDot").style.background = analysis.color;
+  $("description").textContent = analysis.description;
+  $("meterFill").style.width = `${analysis.score / 10}%`;
+
+  $("machineIndex").textContent =
+    `SESSION ${String(rolls).padStart(3, "0")}`;
+
+  $("total").textContent = formatNumber(rolls);
+
+  if (analysis.score > bestScore) {
+    bestScore = analysis.score;
+    bestNumber = number;
+
+    $("best").textContent = number;
+    $("bestNote").textContent =
+      `Your new personal best · ${bestScore} points`;
+  } else {
+    $("bestNote").textContent =
+      `Your highest-rated number · ${bestScore} points`;
+  }
+
+  addHistory(number, analysis);
+}
+
+function randomNumber() {
+  return String(
+    Math.floor(Math.random() * 10000)
+  ).padStart(4, "0");
+}
+
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function animateRoll(timestamp) {
+  if (!rolling) return;
+
+  const elapsed = timestamp - rollStartTime;
+  const progress = Math.min(elapsed / ROLL_DURATION, 1);
+  const easedProgress = easeOutCubic(progress);
+
+  const currentInterval =
+    START_INTERVAL +
+    (END_INTERVAL - START_INTERVAL) * easedProgress;
+
+  if (
+    lastDigitUpdate === 0 ||
+    timestamp - lastDigitUpdate >= currentInterval
+  ) {
+    lastDigitUpdate = timestamp;
+
+    digitElements.forEach(digit => {
+      digit.textContent = Math.floor(Math.random() * 10);
+    });
+  }
+
+  if (progress < 1) {
+    animationFrame = requestAnimationFrame(animateRoll);
+  } else {
+    finishRoll();
+  }
+}
+
+function finishRoll() {
+  if (!rolling) return;
+
+  rolling = false;
+
+  if (animationFrame !== null) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+  }
+
+  digitElements.forEach((digit, index) => {
+    digit.textContent = targetNumber[index];
+  });
+
+  drumElements.forEach(drum => {
+    drum.classList.remove("rolling");
+  });
+
+  const analysis = analyzeNumber(targetNumber);
+
+  rolls++;
+  allNumbers.push(targetNumber);
+
+  updateResults(targetNumber, analysis);
+  checkAchievements(targetNumber, analysis);
+
+  previousNumber = targetNumber;
+  lastScore = analysis.score;
+
+  $("status").textContent =
+    "SIGNAL FOUND · NUMBER IN ORBIT";
+
+  $("buttonTitle").textContent = "Find another";
+  rollButton.disabled = false;
+
+  lastDigitUpdate = 0;
+}
+
+function rollNumber() {
+  if (rolling) return;
+
+  rolling = true;
+  rollButton.disabled = true;
+
+  $("buttonTitle").textContent = "Drifting...";
+  $("status").textContent = "SEARCHING THE NUMBER CLOUD";
+
+  drumElements.forEach(drum => {
+    drum.classList.add("rolling");
+  });
+
+  targetNumber = randomNumber();
+  lastDigitUpdate = 0;
+  rollStartTime = performance.now();
+
+  animationFrame = requestAnimationFrame(animateRoll);
+}
+
+rollButton.addEventListener("click", rollNumber);
+
+renderAchievements();
+</script>
+</body>
+</html>
