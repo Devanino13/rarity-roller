@@ -1,1 +1,239 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)file:///C:/Users/dbnan/Downloads/index%20(14).html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATRIX SEQUENCE EVALUATOR v4.5</title>
+    <style>
+        :root {
+            --bg-main: #04060d;
+            --bg-card: #090e1a;
+            --bg-input: #020307;
+            --border-default: #141b2d;
+            --text-primary: #f1f5f9;
+            --text-secondary: #475569;
+            --accent-blue: #2563eb;
+        }
 
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-main); 
+            color: var(--text-primary); 
+            max-width: 640px; 
+            margin: 80px auto; 
+            padding: 0 20px;
+            letter-spacing: -0.01em;
+        }
+
+        .card { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-default);
+            border-radius: 16px; 
+            padding: 40px; 
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8); 
+            text-align: center; 
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .header-accent {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: #38bdf8;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        h2 { margin: 0 0 8px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+        p { color: var(--text-secondary); font-size: 13px; margin: 0 0 35px 0; line-height: 1.6; }
+        
+        .control-panel { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 35px; }
+        
+        input { 
+            font-size: 32px; width: 160px; text-align: center; 
+            background: var(--bg-input); border: 1px solid var(--border-default); color: #fff; 
+            padding: 14px; border-radius: 12px; font-weight: 700; outline: none;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            transition: all 0.3s ease;
+        }
+        input:focus { border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1); }
+        
+        button { 
+            font-size: 14px; padding: 24px 32px; background: #fff; 
+            border: none; color: #000; border-radius: 12px; cursor: pointer; 
+            font-weight: 600; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        button:hover { background: #e2e8f0; transform: translateY(-1px); }
+        button:active { transform: translateY(1px); }
+        button:disabled { background: #1e293b; color: #475569; cursor: not-allowed; transform: none; }
+
+        .meter-track { width: 100%; background: var(--bg-input); border-radius: 100px; height: 6px; margin-bottom: 40px; overflow: hidden; }
+        .meter-fill { height: 100%; width: 0%; background: var(--accent-blue); transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.6s ease; }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+        .metric-tile { background: var(--bg-input); padding: 24px; border-radius: 12px; border: 1px solid var(--border-default); text-align: left; }
+        .metric-tile h3 { margin: 0; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; }
+        .metric-tile .value { font-size: 26px; font-weight: 800; margin-top: 8px; font-family: ui-monospace, SFMono-Regular, monospace; }
+        
+        .breakdown-box { 
+            text-align: left; background: var(--bg-input); 
+            padding: 24px; border-radius: 12px; font-size: 13px; border: 1px solid var(--border-default);
+        }
+        .breakdown-box strong { color: var(--text-secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 16px; font-weight: 600; }
+        .breakdown-box ul { margin: 0; padding-left: 16px; color: #94a3b8; line-height: 1.9; list-style-type: square; }
+        .breakdown-box li { margin-bottom: 8px; }
+        
+        .rolling { filter: blur(2px); transform: scale(1.02); opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div id="mainCard" class="card" style="border-color: rgba(148, 163, 184, 0.25); box-shadow: rgba(148, 163, 184, 0.063) 0px 30px 60px;">
+        <div class="header-accent">Vector Architecture v4.5</div>
+        <h2>Sequence Analyzer</h2>
+        <p>Dynamic scoring architecture compiling raw mathematical vector configurations up to a 1,000-point hard threshold limit.</p>
+        
+        <div class="control-panel">
+            <input type="text" id="numInput" maxlength="4" placeholder="----" oninput="runEngine()" class="">
+            <button id="genBtn" onclick="rollRandom()">Generate</button>
+        </div>
+
+        <div class="meter-track">
+            <div id="progressBar" class="meter-fill" style="width: 30.6%; background-color: rgb(148, 163, 184);"></div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-tile">
+                <h3>Point Value Index</h3>
+                <div id="scoreBox" style="color: var(--text-primary);">306 / 1000</div>
+            </div>
+            <div class="metric-tile">
+                <h3>Classification Tier</h3>
+                <div id="tierBox" style="font-weight: 800; color: rgb(148, 163, 184);">UNCOMMON</div>
+            </div>
+        </div>
+
+        <div class="breakdown-box">
+            <strong>Engine Parameter Allocation</strong>
+            <ul id="breakdownList"><li>Chaos Variance Distribution (4 unique digits): +269 pts</li><li>Coefficient Multiplier (+37 per registered '7'): +37 pts</li></ul>
+        </div>
+    </div>
+
+    <script>
+        function runEngine() {
+            let numStr = document.getElementById("numInput").value;
+            if (numStr.length !== 4 || isNaN(numStr)) {
+                document.getElementById("scoreBox").innerText = "----";
+                document.getElementById("tierBox").innerText = "AWAITING INPUT";
+                document.getElementById("tierBox").style.color = "var(--text-secondary)";
+                document.getElementById("breakdownList").innerHTML = "<li>Input a 4-digit numeric index to initialize configuration scan.</li>";
+                document.getElementById("progressBar").style.width = "0%";
+                document.getElementById("mainCard").style.borderColor = "var(--border-default)";
+                document.getElementById("mainCard").style.boxShadow = "0 30px 60px rgba(0, 0, 0, 0.8)";
+                return;
+            }
+
+            let score = 0;
+            let breakdown = [];
+            let uniqueDigits = new Set(numStr).size;
+            
+            let digits = numStr.split('').map(Number);
+            let isAscending = "0123456789".includes(numStr);
+            let isDescending = "9876543210".includes(numStr);
+
+            if (uniqueDigits === 1) { score += 423; breakdown.push("Singularity Array Node (All digits match): +423 pts"); }
+            else if (uniqueDigits === 2) { score += 187; breakdown.push("Compressed Grouping Node (2 unique digits): +187 pts"); }
+            else if (uniqueDigits === 3) { score += 94;  breakdown.push("Balanced Value Node (3 unique digits): +94 pts"); }
+            else if (uniqueDigits === 4) { score += 269; breakdown.push("Chaos Variance Distribution (4 unique digits): +269 pts"); }
+
+            if (numStr.substring(0,2) === numStr.substring(2,4)) {
+                score += 217; breakdown.push("Harmonic Twin Duplication: +217 pts");
+            }
+            if (numStr === numStr.split('').reverse().join('') && uniqueDigits > 1) {
+                score += 173; breakdown.push("Symmetrical Mirror Vector (Palindrome): +173 pts");
+            }
+            if (isAscending || isDescending) {
+                score += 311; breakdown.push("Linear Numerical Staircase: +311 pts");
+            }
+
+            let digitalSum = digits.reduce((a, b) => a + b, 0);
+            if (digitalSum >= 32) {
+                score += 113; breakdown.push("High Core Mass Metric (Sum " + digitalSum + " is >= 32): +113 pts");
+            } else if (digitalSum <= 4) {
+                score += 79;  breakdown.push("Low Core Mass Metric (Sum " + digitalSum + " is <= 4): +79 pts");
+            }
+            
+            let evens = digits.filter(n => n % 2 === 0).length;
+            if (evens === 4) { score += 83; breakdown.push("Uniform Even Polar Alignment: +83 pts"); }
+            if (evens === 0) { score += 83; breakdown.push("Uniform Odd Polar Alignment: +83 pts"); }
+
+            let sevens = (numStr.match(/7/g) || []).length;
+            if (sevens > 0) {
+                score += sevens * 37; breakdown.push("Coefficient Multiplier (+37 per registered '7'): +" + (sevens * 37) + " pts");
+            }
+            if (/^[01]+$/.test(numStr)) {
+                score += 109; breakdown.push("System Binary Configuration Profile: +109 pts");
+            }
+
+            score = Math.min(score, 989); 
+
+            let tier, color;
+            if (score >= 950) { tier = "MYTHIC"; color = "#c084fc"; }
+            else if (score >= 820) { tier = "LEGENDARY"; color = "#fb923c"; }
+            else if (score >= 680) { tier = "SPECIAL"; color = "#4ade80"; }
+            else if (score >= 520) { tier = "SUPER RARE"; color = "#60a5fa"; }
+            else if (score >= 380) { tier = "RARE"; color = "#f472b6"; }
+            else if (score >= 200) { tier = "UNCOMMON"; color = "#94a3b8"; }
+            else { tier = "COMMON"; color = "#475569"; }
+
+            document.getElementById("scoreBox").innerText = score + " / 1000";
+            document.getElementById("tierBox").innerText = tier;
+            document.getElementById("tierBox").style.color = color;
+            
+            document.getElementById("progressBar").style.width = ((score / 1000) * 100) + "%";
+            document.getElementById("progressBar").style.backgroundColor = color;
+            document.getElementById("mainCard").style.borderColor = color + "40";
+            document.getElementById("mainCard").style.boxShadow = "0 30px 60px " + color + "10";
+
+            let listHtml = breakdown.map(item => "<li>" + item + "</li>").join('');
+            document.getElementById("breakdownList").innerHTML = listHtml || "<li>Standard matrix parameters verified. No anomalies flagged.</li>";
+        }
+
+        function rollRandom() {
+            let inputField = document.getElementById("numInput");
+            let generateButton = document.getElementById("genBtn");
+            
+            inputField.disabled = true;
+            generateButton.disabled = true;
+            inputField.classList.add("rolling");
+            
+            let duration = 850; 
+            let intervalSpeed = 45; 
+            let elapsed = 0;
+            
+            let rollInterval = setInterval(() => {
+                let placeholderRand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                inputField.value = placeholderRand;
+                runEngine();
+                
+                elapsed += intervalSpeed;
+                if (elapsed >= duration) {
+                    clearInterval(rollInterval);
+                    
+                    let finalRand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                    inputField.value = finalRand;
+                    
+                    inputField.disabled = false;
+                    generateButton.disabled = false;
+                    inputField.classList.remove("rolling");
+                    
+                    runEngine();
+                }
+            }, intervalSpeed);
+        }
+
+        runEngine();
+    </script>
+
+
+</body></html>
